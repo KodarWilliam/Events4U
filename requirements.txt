@@ -1,0 +1,4 @@
+Flask
+flasgger
+requests
+python-dotenv
