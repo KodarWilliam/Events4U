@@ -64,5 +64,5 @@ This will open the Swagger UI where you can see all available endpoints and perf
 
 ## Authors
 
-* **William Svensson** - *Initial work* - [YourGithub](https://github.com/KodarWilliam)
+* **William Svensson** - *Initial work* - [KodarWilliam](https://github.com/KodarWilliam)
 
