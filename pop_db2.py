@@ -7,23 +7,13 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-def get_coordinates_for_city(city, country):
-    opencage_api_key = os.getenv('OPENCAGE_API_KEY')
-    query = f"{city}, {country}"
-    url = f'https://api.opencagedata.com/geocode/v1/json?q={query}&key={opencage_api_key}'
-    response = requests.get(url)
-    if response.status_code == 200 and response.json()['results']:
-        result = response.json()['results'][0]
-        return result['geometry']['lat'], result['geometry']['lng']
-    return None, None
-
-def get_events_by_coordinates(latitude, longitude):
+def get_events_from_ticketmaster():
     ticketmaster_api_key = os.getenv('TICKETMASTER_API_KEY')
     today = datetime.now()
-    next_week = today + timedelta(days=7)
+    next_month = today + timedelta(days=30)
     url = (f"https://app.ticketmaster.com/discovery/v2/events.json?apikey={ticketmaster_api_key}&"
-           f"latlong={latitude},{longitude}&startDateTime={today.strftime('%Y-%m-%dT%H:%M:%SZ')}&"
-           f"endDateTime={next_week.strftime('%Y-%m-%dT%H:%M:%SZ')}")
+           f"startDateTime={today.strftime('%Y-%m-%dT%H:%M:%SZ')}&"
+           f"endDateTime={next_month.strftime('%Y-%m-%dT%H:%M:%SZ')}")
     response = requests.get(url)
     if response.status_code == 200:
         return response.json().get('_embedded', {}).get('events', [])
@@ -59,7 +49,7 @@ def insert_events_into_db(events):
         try:
             cursor.execute('''INSERT INTO events (id, name, event_date, venue, city, country)
                               VALUES (?, ?, ?, ?, ?, ?)''', (event_id, name, event_date.strftime('%Y-%m-%d %H:%M:%S'), venue, city, country))
-            inserted_rows += 1
+            inserted_rows += 1  # Increment counter for each inserted row
         except sqlite3.IntegrityError:
             print(f"Skipping duplicate event: {name}")
 
@@ -68,13 +58,6 @@ def insert_events_into_db(events):
 
     print(f"{inserted_rows} rows were inserted into the database.")
 
-city = input("Enter the name of your city: ")
-country = input("Enter the name of your country: ")
-latitude, longitude = get_coordinates_for_city(city, country)
-
-if latitude and longitude:
-    events = get_events_by_coordinates(latitude, longitude)
-    insert_events_into_db(events)
-    print(f"Events for {city}, {country} have been added to the database.")
-else:
-    print("Could not find coordinates for the given city and country.")
+events = get_events_from_ticketmaster()
+insert_events_into_db(events)
+print("Events have been added to the database.")

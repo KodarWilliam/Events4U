@@ -14,9 +14,14 @@ def get_db_connection():
 def get_events():
     """Endpoint to list all events
     ---
+    parameters:
+      - name: country
+        in: query
+        type: string
+        description: The country to filter events by
     responses:
       200:
-        description: A list of all events
+        description: A list of all events or events filtered by country
         schema:
           id: Events
           type: array
@@ -45,10 +50,15 @@ def get_events():
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM events')
+    country_filter = request.args.get('country')
+    if country_filter:
+        cursor.execute('SELECT * FROM events WHERE country = ?', (country_filter,))
+    else:
+        cursor.execute('SELECT * FROM events')
     events = cursor.fetchall()
     conn.close()
     return jsonify([dict(row) for row in events])
+
 
 @app.route('/events/<int:event_id>', methods=['GET'])
 def get_event(event_id):
