@@ -49,7 +49,7 @@ def insert_events_into_db(events):
         try:
             cursor.execute('''INSERT INTO events (id, name, event_date, venue, city, country)
                               VALUES (?, ?, ?, ?, ?, ?)''', (event_id, name, event_date.strftime('%Y-%m-%d %H:%M:%S'), venue, city, country))
-            inserted_rows += 1  # Increment counter for each inserted row
+            inserted_rows += 1
         except sqlite3.IntegrityError:
             print(f"Skipping duplicate event: {name}")
 

@@ -138,6 +138,12 @@ def create_event():
             country:
               type: string
               description: The country of the event
+          example:
+            name: "Tech Conference"
+            event_date: "2024-06-15"
+            venue: "Tech Park"
+            city: "San Francisco"
+            country: "USA"
     responses:
       201:
         description: The event was created successfully
